@@ -1,15 +1,20 @@
 from tkinter import *
 from PIL import ImageTk
-import os
+from chessboard import Board
+
 class GUI:
     rows = 8
     columns = 8
-    color1 = "#DDB88C"
-    color2 = "#A66D4F"
-    dim_square = 64
+    color1 = "#DDB88C"  # Màu sắc ô 1
+    color2 = "#A66D4F"  # Màu sắc ô 2
+    dim_square = 64  # Kích thước ô
 
     def __init__(self, parent, chessboard):
         self.parent = parent
+        self.chessboard = chessboard
+        self.images = {}
+        
+        # Thiết lập kích thước canvas
         canvas_width = self.columns * self.dim_square
         canvas_height = self.rows * self.dim_square
         self.canvas = Canvas(
@@ -19,8 +24,8 @@ class GUI:
             background="grey"
         )
         self.canvas.pack(padx=8, pady=8)
-        self.draw_board()
-        self.draw_pieces()
+        self.draw_board()  # Vẽ bàn cờ
+        self.draw_pieces()  # Vẽ quân cờ
 
     def draw_board(self):
         color = self.color2
@@ -37,27 +42,30 @@ class GUI:
                 )
                 color = self.color1 if color == self.color2 else self.color2
 
-#Định nghĩa phương thức vẽ các quân cờ trên bàn cờ
     def draw_pieces(self): 
-        self.canvas.delete("occupied")
+        self.canvas.delete("occupied")  # Xóa quân cờ cũ
         for xycoord, piece in self.chessboard.items():
             x, y = self.chessboard.num_notation(xycoord)
             if piece is not None:
                 filename = "../BanCo/pieces_image/%s%s.png" % (piece.shortname.lower(), piece.color)
                 piecename = "%s%s%s" % (piece.shortname, x, y)
-                if (filename not in self.images):
+                
+                # Kiểm tra và tải hình ảnh
+                if filename not in self.images:
                     self.images[filename] = ImageTk.PhotoImage(file=filename)
+                
+                # Vẽ quân cờ
                 self.canvas.create_image(0, 0, image=self.images[filename], tags=(piecename, "occupied"), anchor="c")
-                x0 = (y * self.dim_square) + int(self.dim_square/2)
-                y0 = ((7-x) * self.dim_square) + int(self.dim_square/2)
-                self.canvas.coords(piecename, x0, y0)
-
+                x0 = (y * self.dim_square) + int(self.dim_square / 2)
+                y0 = ((7 - x) * self.dim_square) + int(self.dim_square / 2)
+                self.canvas.coords(piecename, x0, y0)  # Đặt tọa độ cho quân cờ
 
 def main():
     root = Tk()
-    root.title("Chess")
-    gui = GUI(root)
-    root.mainloop()
+    root.title("Cờ vua")
+    board = Board()  # Khởi tạo bàn cờ
+    gui = GUI(root, board)
+    root.mainloop()  # Bắt đầu vòng lặp GUI
 
 if __name__ == "__main__":
     main()
